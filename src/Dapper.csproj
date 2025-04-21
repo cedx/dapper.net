@@ -29,4 +29,12 @@
 	<ItemGroup>
 		<None Include="../README.md" Pack="true" PackagePath="/" />
 	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Dapper" Version="2.*" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Using Include="Dapper" />
+	</ItemGroup>
 </Project>
