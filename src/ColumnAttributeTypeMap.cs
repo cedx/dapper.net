@@ -59,7 +59,7 @@ public class ColumnAttributeTypeMap<T>(): SqlMapper.ITypeMap {
 	/// <param name="column">The column name.</param>
 	/// <returns>The mapping implementation.</returns>
 	public SqlMapper.IMemberMap? GetMember(string column) {
-		try { return customMapper.GetMember(column); }
-		catch { return defaultMapper.GetMember(column); }
+		var member = customMapper.GetMember(column);
+		return member ?? defaultMapper.GetMember(column);
 	}
 }
