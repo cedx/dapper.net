@@ -9,12 +9,11 @@
 
 	<PropertyGroup>
 		<Authors>CedX</Authors>
-		<EmbedUntrackedSources>true</EmbedUntrackedSources>
 		<IncludeSymbols>true</IncludeSymbols>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageTags>database;dapper;mapping;orm;sql</PackageTags>
-		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<RepositoryUrl>https://github.com/cedx/dapper.net.git</RepositoryUrl>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 	</PropertyGroup>
 
@@ -33,7 +32,6 @@
 
 	<ItemGroup>
 		<PackageReference Include="Dapper" Version="2.*" />
-		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.*" PrivateAssets="All" />
 	</ItemGroup>
 
 	<ItemGroup>
