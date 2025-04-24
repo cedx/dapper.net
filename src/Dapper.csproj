@@ -9,6 +9,7 @@
 
 	<PropertyGroup>
 		<Authors>CedX</Authors>
+		<EmbedUntrackedSources>true</EmbedUntrackedSources>
 		<IncludeSymbols>true</IncludeSymbols>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
