@@ -1,5 +1,6 @@
 namespace Belin.Dapper;
 
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using System.Reflection;
@@ -10,50 +11,65 @@ using System.Reflection;
 public static partial class SqlMapperExtensions {
 
 	/// <summary>
-	/// The SQL query used to count the entities.
+	/// The query pattern used to count the entities.
 	/// </summary>
 	private const string CountQuery = "SELECT COUNT(*) FROM {0}";
 
 	/// <summary>
-	/// The SQL query used to delete an entity.
+	/// The query pattern used to delete an entity.
 	/// </summary>
-	// private const string DeleteQuery = "DELETE FROM {0} WHERE {1} = @Key";
+	private const string DeleteQuery = "DELETE FROM {0} WHERE {1} = @Key";
 
 	/// <summary>
-	/// The SQL query used to delete all entities.
+	/// The query pattern used to delete all entities.
 	/// </summary>
 	private const string DeleteAllQuery = "DELETE FROM {0}";
 
 	/// <summary>
-	/// The SQL query used to fetch an entity.
+	/// The query pattern used to fetch an entity.
 	/// </summary>
-	// private const string FetchQuery = "SELECT {0} FROM {1} WHERE {2} = @Key";
+	private const string FetchQuery = "SELECT {0} FROM {1} WHERE {2} = @Key";
 
 	/// <summary>
-	/// The SQL query used to fetch all entities.
+	/// The query pattern used to fetch all entities.
 	/// </summary>
 	private const string FetchAllQuery = "SELECT {0} FROM {1}";
 
 	/// <summary>
-	/// The SQL query used to truncate a table.
+	/// The query pattern used to insert an entity.
+	/// </summary>
+	private const string InsertQuery = "INSERT INTO {0} ({1}) VALUES ({2})";
+
+	/// <summary>
+	/// The query pattern used to truncate a table.
 	/// </summary>
 	private const string TruncateQuery = "TRUNCATE TABLE {0}";
 
 	/// <summary>
-	/// Resolves the name of the property corresponding to the specified column name for a given entity type.
+	/// The query pattern used to update an entity.
+	/// </summary>
+	private const string UpdateQuery = "UPDATE {0} SET {1}";
+
+	/// <summary>
+	/// Resolves the column name corresponding to a given property of the specified entity type.
 	/// </summary>
 	/// <typeparam name="T">The entity type.</typeparam>
-	/// <param name="columnName">The column name.</param>
-	/// <returns>The resolved property name.</returns>
-	// private static string GetColumnName<T>(string columnName) {
-	// 	var properties = typeof(T).GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-	// 	return properties.FirstOrDefault(property => property.GetCustomAttribute<ColumnAttribute>()?.Name == columnName)?.Name ?? columnName;
-	// }
+	/// <param name="property">The property name.</param>
+	/// <returns>The resolved column name.</returns>
+	private static string GetColumnName<T>(string property) {
+		var member = typeof(T).GetProperty(property, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+		return member?.GetCustomAttribute<ColumnAttribute>()?.Name ?? property;
+	}
 
-	// private static string GetPrimaryKey<T>() {
-	// 	var bindingFlags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
-	// 	return type.GetProperties(bindingFlags).FirstOrDefault(property => property.GetCustomAttribute<ColumnAttribute>()?.Name == column)!;
-	// }
+	/// <summary>
+	/// TODO Resolves the column name corresponding to the single key of the specified entity type.
+	/// </summary>
+	/// <typeparam name="T">The entity type.</typeparam>
+	/// <returns>The resolved key name.</returns>
+	private static string GetKeyName<T>() {
+		var properties = typeof(T).GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+		return GetColumnName<T>(properties.FirstOrDefault(property => property.IsDefined(typeof(KeyAttribute)))?.Name ?? "Id");
+	}
 
 	/// <summary>
 	/// Gets the name of the table associated with an entity.
