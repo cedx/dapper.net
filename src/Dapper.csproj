@@ -4,7 +4,7 @@
 		<Copyright>© Cédric Belin</Copyright>
 		<Description>Custom type maps and type handlers for Dapper.</Description>
 		<Product>Dapper Mappings</Product>
-		<Version>0.2.0</Version>
+		<Version>0.3.0</Version>
 	</PropertyGroup>
 
 	<PropertyGroup>
