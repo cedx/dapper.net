@@ -27,14 +27,29 @@ public static partial class SqlMapperExtensions {
 		await connection.ExecuteAsync(string.Format(DeleteAllQuery, GetTableName<T>()));
 
 	/// <summary>
+	/// Fetches the entity with the specified identifier.
+	/// </summary>
+	/// <typeparam name="T">The entity type.</typeparam>
+	/// <param name="connection">The database connection.</param>
+	/// <param name="id">The entity identifier.</param>
+	/// <param name="columns">The names of the columns to fetch.</param>
+	/// <returns>The entity with the specified identifier, or <see langword="null"/> if not found.</returns>
+	public static async Task<T?> FetchAsync<T>(this IDbConnection connection, dynamic id, params string[] columns) where T: class {
+		var fields = columns.Length > 0 ? string.Join(", ", columns) : "*";
+		return await connection.QuerySingleOrDefaultAsync<T>(string.Format(FetchQuery, fields, GetTableName<T>(), GetSingleKey<T>().Name), new { id });
+	}
+
+	/// <summary>
 	/// Fetches all entities of the specified type.
 	/// </summary>
 	/// <typeparam name="T">The entity type.</typeparam>
 	/// <param name="connection">The database connection.</param>
 	/// <param name="columns">The names of the columns to fetch.</param>
 	/// <returns>The entity list.</returns>
-	public static async Task<IEnumerable<T>> FetchAllAsync<T>(this IDbConnection connection, params string[] columns) where T: class =>
-		await connection.QueryAsync<T>(string.Format(FetchAllQuery, columns.Length > 0 ? string.Join(", ", columns) : "*", GetTableName<T>()));
+	public static async Task<IEnumerable<T>> FetchAllAsync<T>(this IDbConnection connection, params string[] columns) where T: class {
+		var fields = columns.Length > 0 ? string.Join(", ", columns) : "*";
+		return await connection.QueryAsync<T>(string.Format(FetchAllQuery, fields, GetTableName<T>()));
+	}
 
 	/// <summary>
 	/// Truncates the table associated with the specified entity type.

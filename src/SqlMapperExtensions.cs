@@ -18,7 +18,7 @@ public static partial class SqlMapperExtensions {
 	/// <summary>
 	/// The query pattern used to delete an entity.
 	/// </summary>
-	private const string DeleteQuery = "DELETE FROM {0} WHERE {1} = @Key";
+	private const string DeleteQuery = "DELETE FROM {0} WHERE {1} = @id";
 
 	/// <summary>
 	/// The query pattern used to delete all entities.
@@ -28,7 +28,7 @@ public static partial class SqlMapperExtensions {
 	/// <summary>
 	/// The query pattern used to fetch an entity.
 	/// </summary>
-	private const string FetchQuery = "SELECT {0} FROM {1} WHERE {2} = @Key";
+	private const string FetchQuery = "SELECT {0} FROM {1} WHERE {2} = @id";
 
 	/// <summary>
 	/// The query pattern used to fetch all entities.
@@ -66,9 +66,12 @@ public static partial class SqlMapperExtensions {
 	/// </summary>
 	/// <typeparam name="T">The entity type.</typeparam>
 	/// <returns>The resolved key name.</returns>
-	private static string GetKeyName<T>() where T: class {
-		var properties = typeof(T).GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-		return GetColumnName<T>(properties.FirstOrDefault(property => property.IsDefined(typeof(KeyAttribute)))?.Name ?? "Id");
+	/// <exception cref="DataException">TODO</exception>
+	private static PropertyInfo GetSingleKey<T>() where T: class {
+		var bindingFlags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
+		var type = typeof(T);
+		var member = type.GetProperties(bindingFlags).FirstOrDefault(property => property.IsDefined(typeof(KeyAttribute)));
+		return member ?? type.GetProperty("Id", bindingFlags) ?? throw new DataException("TODO");
 	}
 
 	/// <summary>
