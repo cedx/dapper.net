@@ -12,9 +12,9 @@ public class ColumnAttributeTypeMap<T>(): SqlMapper.ITypeMap {
 	/// <summary>
 	/// The custom type map used to find the properties annotated with a <see cref="ColumnAttribute"/> attribute.
 	/// </summary>
-	private readonly CustomPropertyTypeMap customMapper = new(typeof(T), (type, column) => {
-		var bindingFlags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
-		return type.GetProperties(bindingFlags).FirstOrDefault(property => property.GetCustomAttribute<ColumnAttribute>()?.Name == column)!;
+	private readonly CustomPropertyTypeMap customMapper = new(typeof(T), (type, columnName) => {
+		var properties = type.GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+		return properties.FirstOrDefault(property => property.GetCustomAttribute<ColumnAttribute>()?.Name == columnName)!;
 	});
 
 	/// <summary>
@@ -46,20 +46,20 @@ public class ColumnAttributeTypeMap<T>(): SqlMapper.ITypeMap {
 	/// Gets the mapping for a constructor parameter.
 	/// </summary>
 	/// <param name="constructor">The constructor to resolve.</param>
-	/// <param name="column">The column name.</param>
+	/// <param name="columnName">The column name.</param>
 	/// <returns>The mapping implementation.</returns>
-	public SqlMapper.IMemberMap? GetConstructorParameter(ConstructorInfo constructor, string column) {
-		try { return customMapper.GetConstructorParameter(constructor, column); }
-		catch { return defaultMapper.GetConstructorParameter(constructor, column); }
+	public SqlMapper.IMemberMap? GetConstructorParameter(ConstructorInfo constructor, string columnName) {
+		try { return customMapper.GetConstructorParameter(constructor, columnName); }
+		catch { return defaultMapper.GetConstructorParameter(constructor, columnName); }
 	}
 
 	/// <summary>
 	/// Gets the member mapping for a column.
 	/// </summary>
-	/// <param name="column">The column name.</param>
+	/// <param name="columnName">The column name.</param>
 	/// <returns>The mapping implementation.</returns>
-	public SqlMapper.IMemberMap? GetMember(string column) {
-		var member = customMapper.GetMember(column);
-		return member ?? defaultMapper.GetMember(column);
+	public SqlMapper.IMemberMap? GetMember(string columnName) {
+		var member = customMapper.GetMember(columnName);
+		return member ?? defaultMapper.GetMember(columnName);
 	}
 }
