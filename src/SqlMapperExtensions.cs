@@ -25,6 +25,16 @@ public static partial class SqlMapperExtensions {
 	private const string DeleteAllQuery = "DELETE FROM {0}";
 
 	/// <summary>
+	/// The SQL query used to fetch an entity.
+	/// </summary>
+	// private const string FetchQuery = "SELECT {0} FROM {1} WHERE {2} = @Key";
+
+	/// <summary>
+	/// The SQL query used to fetch all entities.
+	/// </summary>
+	private const string FetchAllQuery = "SELECT {0} FROM {1}";
+
+	/// <summary>
 	/// The SQL query used to truncate a table.
 	/// </summary>
 	private const string TruncateQuery = "TRUNCATE TABLE {0}";
