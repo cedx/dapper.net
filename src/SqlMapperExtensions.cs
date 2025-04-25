@@ -56,7 +56,7 @@ public static partial class SqlMapperExtensions {
 	/// <typeparam name="T">The entity type.</typeparam>
 	/// <param name="property">The property name.</param>
 	/// <returns>The resolved column name.</returns>
-	private static string GetColumnName<T>(string property) {
+	private static string GetColumnName<T>(string property) where T: class {
 		var member = typeof(T).GetProperty(property, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
 		return member?.GetCustomAttribute<ColumnAttribute>()?.Name ?? property;
 	}
@@ -66,7 +66,7 @@ public static partial class SqlMapperExtensions {
 	/// </summary>
 	/// <typeparam name="T">The entity type.</typeparam>
 	/// <returns>The resolved key name.</returns>
-	private static string GetKeyName<T>() {
+	private static string GetKeyName<T>() where T: class {
 		var properties = typeof(T).GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
 		return GetColumnName<T>(properties.FirstOrDefault(property => property.IsDefined(typeof(KeyAttribute)))?.Name ?? "Id");
 	}
@@ -76,7 +76,7 @@ public static partial class SqlMapperExtensions {
 	/// </summary>
 	/// <typeparam name="T">The entity type.</typeparam>
 	/// <returns>The name of the table associated with an entity.</returns>
-	private static string GetTableName<T>() {
+	private static string GetTableName<T>() where T: class {
 		var type = typeof(T);
 		return type.GetCustomAttribute<TableAttribute>()?.Name ?? type.Name;
 	}

@@ -13,7 +13,7 @@ public static partial class SqlMapperExtensions {
 	/// <typeparam name="T">The entity type.</typeparam>
 	/// <param name="connection">The database connection.</param>
 	/// <returns>The total number of entities.</returns>
-	public static int Count<T>(this IDbConnection connection) =>
+	public static int Count<T>(this IDbConnection connection) where T: class =>
 		connection.ExecuteScalar<int>(string.Format(CountQuery, GetTableName<T>()));
 
 	/// <summary>
@@ -22,7 +22,7 @@ public static partial class SqlMapperExtensions {
 	/// <typeparam name="T">The entity type.</typeparam>
 	/// <param name="connection">The database connection.</param>
 	/// <returns>The number of affected rows.</returns>
-	public static int DeleteAll<T>(this IDbConnection connection) =>
+	public static int DeleteAll<T>(this IDbConnection connection) where T: class =>
 		connection.Execute(string.Format(DeleteAllQuery, GetTableName<T>()));
 
 	/// <summary>
@@ -32,7 +32,7 @@ public static partial class SqlMapperExtensions {
 	/// <param name="connection">The database connection.</param>
 	/// <param name="columns">The names of the columns to fetch.</param>
 	/// <returns>The entity list.</returns>
-	public static IEnumerable<T> FetchAll<T>(this IDbConnection connection, params string[] columns) =>
+	public static IEnumerable<T> FetchAll<T>(this IDbConnection connection, params string[] columns) where T: class =>
 		connection.Query<T>(string.Format(FetchAllQuery, columns.Length > 0 ? string.Join(", ", columns) : "*", GetTableName<T>()));
 
 	/// <summary>
@@ -40,6 +40,6 @@ public static partial class SqlMapperExtensions {
 	/// </summary>
 	/// <param name="connection">The database connection.</param>
 	/// <typeparam name="T">The entity type.</typeparam>
-	public static void Truncate<T>(this IDbConnection connection) =>
+	public static void Truncate<T>(this IDbConnection connection) where T: class =>
 		connection.Execute(string.Format(TruncateQuery, GetTableName<T>()));
 }
