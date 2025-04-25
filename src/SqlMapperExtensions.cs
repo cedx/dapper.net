@@ -72,10 +72,10 @@ public static partial class SqlMapperExtensions {
 	}
 
 	/// <summary>
-	/// Gets the name of the table associated with an entity.
+	/// Resolves the table name of the table corresponding the specified entity type.
 	/// </summary>
 	/// <typeparam name="T">The entity type.</typeparam>
-	/// <returns>The name of the table associated with an entity.</returns>
+	/// <returns>The resolved table name.</returns>
 	private static string GetTableName<T>() where T: class {
 		var type = typeof(T);
 		return type.GetCustomAttribute<TableAttribute>()?.Name ?? type.Name;
