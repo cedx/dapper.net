@@ -51,28 +51,23 @@ public static partial class SqlMapperExtensions {
 	private const string UpdateQuery = "UPDATE {0} SET {1} WHERE {2} = @id";
 
 	/// <summary>
-	/// Resolves the column name corresponding to a given property of the specified entity type.
+	/// Resolves the column name corresponding to the specified property.
 	/// </summary>
-	/// <typeparam name="T">The entity type.</typeparam>
-	/// <param name="property">The property name.</param>
+	/// <param name="property">The property.</param>
 	/// <returns>The resolved column name.</returns>
-	/// <exception cref="DataException">TODO</exception>
-	private static string GetColumnName<T>(string property) where T: class {
-		var bindingFlags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
-		var member = typeof(T).GetProperty(property, bindingFlags) ?? throw new DataException("Unable to find the specified property.");
-		return member.GetCustomAttribute<ColumnAttribute>()?.Name ?? member.Name;
-	}
+	private static string GetColumnName(this PropertyInfo property) =>
+		property.GetCustomAttribute<ColumnAttribute>()?.Name ?? property.Name;
 
 	/// <summary>
-	/// TODO Resolves the column name corresponding to the single key of the specified entity type.
+	/// Resolves the property corresponding to the single key of the specified entity type.
 	/// </summary>
 	/// <typeparam name="T">The entity type.</typeparam>
-	/// <returns>The resolved key name.</returns>
-	/// <exception cref="DataException">TODO</exception>
+	/// <returns>The resolved property.</returns>
+	/// <exception cref="DataException">The single key is not found.</exception>
 	private static PropertyInfo GetSingleKey<T>() where T: class {
 		var bindingFlags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
 		var type = typeof(T);
-		var member = type.GetProperties(bindingFlags).FirstOrDefault(property => property.IsDefined(typeof(KeyAttribute)));
+		var member = type.GetProperties(bindingFlags).SingleOrDefault(property => property.IsDefined(typeof(KeyAttribute)));
 		return member ?? type.GetProperty("Id", bindingFlags) ?? throw new DataException("Unable to find the single key.");
 	}
 

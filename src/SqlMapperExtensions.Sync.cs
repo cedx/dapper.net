@@ -24,7 +24,7 @@ public static partial class SqlMapperExtensions {
 	/// <param name="id">The entity identifier.</param>
 	/// <returns><see langword="true"/> if the entity has been deleted, otherwise <see langword="false"/>.</returns>
 	public static bool Delete<T>(this IDbConnection connection, dynamic id) where T: class {
-		var key = GetColumnName<T>(GetSingleKey<T>().Name);
+		var key = GetSingleKey<T>().GetColumnName();
 		return connection.Execute(string.Format(DeleteQuery, GetTableName<T>(), key), new { id }) > 0;
 	}
 
@@ -47,7 +47,7 @@ public static partial class SqlMapperExtensions {
 	/// <returns>The entity with the specified identifier, or <see langword="null"/> if not found.</returns>
 	public static T? Fetch<T>(this IDbConnection connection, dynamic id, params string[] columns) where T: class {
 		var fields = columns.Length > 0 ? string.Join(", ", columns) : "*";
-		var key = GetColumnName<T>(GetSingleKey<T>().Name);
+		var key = GetSingleKey<T>().GetColumnName();
 		return connection.QuerySingleOrDefault<T>(string.Format(FetchQuery, fields, GetTableName<T>(), key), new { id });
 	}
 
