@@ -2,7 +2,7 @@
 	<PropertyGroup>
 		<Company>Belin.io</Company>
 		<Copyright>© Cédric Belin</Copyright>
-		<Product>Dapper Mappings</Product>
+		<Product>Dapper Extensions</Product>
 		<Version>0.3.0</Version>
 	</PropertyGroup>
 

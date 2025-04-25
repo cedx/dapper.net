@@ -2,8 +2,8 @@
 	<PropertyGroup>
 		<Company>Belin.io</Company>
 		<Copyright>© Cédric Belin</Copyright>
-		<Description>Custom type maps and type handlers for Dapper.</Description>
-		<Product>Dapper Mappings</Product>
+		<Description>Extensions methods, custom type maps and type handlers for Dapper.</Description>
+		<Product>Dapper Extensions</Product>
 		<Version>0.3.0</Version>
 	</PropertyGroup>
 
