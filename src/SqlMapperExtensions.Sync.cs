@@ -16,11 +16,17 @@ public static partial class SqlMapperExtensions {
 	public static int Count<T>(this IDbConnection connection) where T: class =>
 		connection.ExecuteScalar<int>(string.Format(CountQuery, GetTableName<T>()));
 
-	// public static bool Delete<T>(this IDbConnection connection, T entity) where T: class {
-	// 	var key = GetSingleKey<T>();
-	// 	var affectedRows = connection.Execute(string.Format(DeleteQuery, GetTableName<T>(), GetColumnName<T>(key.Name)));
-	// 	return affectedRows > 0;
-	// }
+	/// <summary>
+	/// Deletes the entity with the specified identifier.
+	/// </summary>
+	/// <typeparam name="T">The entity type.</typeparam>
+	/// <param name="connection">The database connection.</param>
+	/// <param name="id">The entity identifier.</param>
+	/// <returns><see langword="true"/> if the entity has been deleted, otherwise <see langword="false"/>.</returns>
+	public static bool Delete<T>(this IDbConnection connection, dynamic id) where T: class {
+		var key = GetColumnName<T>(GetSingleKey<T>().Name);
+		return connection.Execute(string.Format(DeleteQuery, GetTableName<T>(), key), new { id }) > 0;
+	}
 
 	/// <summary>
 	/// Deletes all entities of the specified type.
@@ -41,7 +47,8 @@ public static partial class SqlMapperExtensions {
 	/// <returns>The entity with the specified identifier, or <see langword="null"/> if not found.</returns>
 	public static T? Fetch<T>(this IDbConnection connection, dynamic id, params string[] columns) where T: class {
 		var fields = columns.Length > 0 ? string.Join(", ", columns) : "*";
-		return connection.QuerySingleOrDefault<T>(string.Format(FetchQuery, fields, GetTableName<T>(), GetSingleKey<T>().Name), new { id });
+		var key = GetColumnName<T>(GetSingleKey<T>().Name);
+		return connection.QuerySingleOrDefault<T>(string.Format(FetchQuery, fields, GetTableName<T>(), key), new { id });
 	}
 
 	/// <summary>

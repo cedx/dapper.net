@@ -48,7 +48,7 @@ public static partial class SqlMapperExtensions {
 	/// <summary>
 	/// The query pattern used to update an entity.
 	/// </summary>
-	private const string UpdateQuery = "UPDATE {0} SET {1}";
+	private const string UpdateQuery = "UPDATE {0} SET {1} WHERE {2} = @id";
 
 	/// <summary>
 	/// Resolves the column name corresponding to a given property of the specified entity type.
@@ -56,9 +56,11 @@ public static partial class SqlMapperExtensions {
 	/// <typeparam name="T">The entity type.</typeparam>
 	/// <param name="property">The property name.</param>
 	/// <returns>The resolved column name.</returns>
+	/// <exception cref="DataException">TODO</exception>
 	private static string GetColumnName<T>(string property) where T: class {
-		var member = typeof(T).GetProperty(property, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-		return member?.GetCustomAttribute<ColumnAttribute>()?.Name ?? property;
+		var bindingFlags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
+		var member = typeof(T).GetProperty(property, bindingFlags) ?? throw new DataException("Unable to find the specified property.");
+		return member.GetCustomAttribute<ColumnAttribute>()?.Name ?? member.Name;
 	}
 
 	/// <summary>
@@ -71,7 +73,7 @@ public static partial class SqlMapperExtensions {
 		var bindingFlags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
 		var type = typeof(T);
 		var member = type.GetProperties(bindingFlags).FirstOrDefault(property => property.IsDefined(typeof(KeyAttribute)));
-		return member ?? type.GetProperty("Id", bindingFlags) ?? throw new DataException("TODO");
+		return member ?? type.GetProperty("Id", bindingFlags) ?? throw new DataException("Unable to find the single key.");
 	}
 
 	/// <summary>
