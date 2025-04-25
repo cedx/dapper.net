@@ -17,7 +17,7 @@ public static partial class SqlMapperExtensions {
 	/// <summary>
 	/// The SQL query used to delete an entity.
 	/// </summary>
-	private const string DeleteQuery = "DELETE FROM {0} WHERE {1} = @PrimaryKey";
+	// private const string DeleteQuery = "DELETE FROM {0} WHERE {1} = @Key";
 
 	/// <summary>
 	/// The SQL query used to delete all entities.
@@ -30,33 +30,15 @@ public static partial class SqlMapperExtensions {
 	private const string TruncateQuery = "TRUNCATE TABLE {0}";
 
 	/// <summary>
-	/// Counts the total number of entities.
+	/// Resolves the name of the property corresponding to the specified column name for a given entity type.
 	/// </summary>
 	/// <typeparam name="T">The entity type.</typeparam>
-	/// <returns>The total number of entities.</returns>
-	public static int Count<T>(this IDbConnection connection) =>
-		connection.ExecuteScalar<int>(string.Format(CountQuery, GetTableName<T>()));
-
-	/// <summary>
-	/// Deletes all entities of the specified type.
-	/// </summary>
-	/// <typeparam name="T">The entity type.</typeparam>
-	/// <returns>The number of affected rows.</returns>
-	public static int DeleteAll<T>(this IDbConnection connection) =>
-		connection.Execute(string.Format(DeleteAllQuery, GetTableName<T>()));
-
-	/// <summary>
-	/// Truncates the table associated with the specified entity type.
-	/// </summary>
-	/// <typeparam name="T">The entity type.</typeparam>
-	public static void Truncate<T>(this IDbConnection connection) =>
-		connection.Execute(string.Format(TruncateQuery, GetTableName<T>()));
-
-	private static string GetColumnName<T>(string column) {
-		var bindingFlags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
-		var property = typeof(T).GetProperties(bindingFlags).FirstOrDefault(member => member.GetCustomAttribute<ColumnAttribute>()?.Name == column);
-		return property is PropertyInfo info ? info.Name : column;
-	}
+	/// <param name="columnName">The column name.</param>
+	/// <returns>The resolved property name.</returns>
+	// private static string GetColumnName<T>(string columnName) {
+	// 	var properties = typeof(T).GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+	// 	return properties.FirstOrDefault(property => property.GetCustomAttribute<ColumnAttribute>()?.Name == columnName)?.Name ?? columnName;
+	// }
 
 	// private static string GetPrimaryKey<T>() {
 	// 	var bindingFlags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
