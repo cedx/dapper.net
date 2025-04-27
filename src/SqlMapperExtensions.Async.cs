@@ -34,8 +34,8 @@ public static partial class SqlMapperExtensions {
 	/// <param name="connection">The database connection.</param>
 	/// <param name="entity">The entity to delete.</param>
 	/// <returns><see langword="true"/> if the entity has been deleted, otherwise <see langword="false"/>.</returns>
-	public static Task<bool> Delete<T>(this IDbConnection connection, T entity) where T: class =>
-		DeleteAsync<T>(connection, GetSingleKey<T>().GetValue(entity)!);
+	public static async Task<bool> DeleteAsync<T>(this IDbConnection connection, T entity) where T: class =>
+		await DeleteAsync<T>(connection, GetSingleKey<T>().GetValue(entity)!);
 
 	/// <summary>
 	/// Deletes all entities of the specified type.
