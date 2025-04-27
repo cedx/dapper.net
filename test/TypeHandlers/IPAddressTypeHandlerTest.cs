@@ -26,14 +26,16 @@ public sealed class IPAddressTypeHandlerTest {
 	[TestMethod]
 	public void SetValue() {
 		var parameter = new SqliteParameter();
-		var typeHandler = new IPAddressTypeHandler();
 
 		// It should set the parameter to `null` if the value is `null`.
-		typeHandler.SetValue(parameter, null);
+		new IPAddressTypeHandler().SetValue(parameter, null);
 		IsNull(parameter.Value);
 
 		// It should set the parameter to the string representation if the value is not `null`.
-		typeHandler.SetValue(parameter, IPAddress.Parse("127.0.0.1"));
+		new IPAddressTypeHandler(mapToIPv6: false).SetValue(parameter, IPAddress.Parse("127.0.0.1"));
+		AreEqual("127.0.0.1", parameter.Value);
+
+		new IPAddressTypeHandler(mapToIPv6: true).SetValue(parameter, IPAddress.Parse("127.0.0.1"));
 		AreEqual("::ffff:127.0.0.1", parameter.Value);
 	}
 }

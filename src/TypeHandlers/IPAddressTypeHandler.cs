@@ -6,7 +6,8 @@ using System.Net;
 /// <summary>
 /// Maps an Internet Protocol (IP) address to or from a string.
 /// </summary>
-public class IPAddressTypeHandler: SqlMapper.TypeHandler<IPAddress> {
+/// <param name="mapToIPv6">Value indicating whether to map IPv4 addresses to IPv6.</param>
+public class IPAddressTypeHandler(bool mapToIPv6 = false): SqlMapper.TypeHandler<IPAddress> {
 
 	/// <summary>
 	/// Parses a database value back to a typed value.
@@ -22,5 +23,5 @@ public class IPAddressTypeHandler: SqlMapper.TypeHandler<IPAddress> {
 	/// <param name="parameter">The parameter to configure.</param>
 	/// <param name="value">The parameter value.</param>
 	public override void SetValue(IDbDataParameter parameter, IPAddress? value) =>
-		parameter.Value = value?.MapToIPv6().ToString();
+		parameter.Value = mapToIPv6 ? value?.MapToIPv6().ToString() : value?.ToString();
 }
