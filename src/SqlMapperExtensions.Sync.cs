@@ -1,7 +1,6 @@
 namespace Belin.Dapper;
 
 using System.Data;
-using System.Text;
 
 /// <summary>
 /// Provides synchronous extension methods for database connections.
@@ -75,4 +74,16 @@ public static partial class SqlMapperExtensions {
 	/// <typeparam name="T">The entity type.</typeparam>
 	public static void Truncate<T>(this IDbConnection connection) where T: class =>
 		connection.Execute(GetTruncateQuery<T>());
+
+	/// <summary>
+	/// Updates the specified entity.
+	/// </summary>
+	/// <typeparam name="T">The entity type.</typeparam>
+	/// <param name="connection">The database connection.</param>
+	/// <param name="entity">The entity to update.</param>
+	/// <param name="columns">The names of the columns to update.</param>
+	public static void Update<T>(this IDbConnection connection, T entity, params string[] columns) where T: class {
+		var (sql, parameters) = GetUpdateQuery(entity, columns);
+		connection.Execute(sql, parameters);
+	}
 }

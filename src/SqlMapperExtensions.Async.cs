@@ -76,4 +76,16 @@ public static partial class SqlMapperExtensions {
 	/// <typeparam name="T">The entity type.</typeparam>
 	public static async Task TruncateAsync<T>(this IDbConnection connection) where T: class =>
 		await connection.ExecuteAsync(GetTruncateQuery<T>());
+
+	/// <summary>
+	/// Updates the specified entity.
+	/// </summary>
+	/// <typeparam name="T">The entity type.</typeparam>
+	/// <param name="connection">The database connection.</param>
+	/// <param name="entity">The entity to update.</param>
+	/// <param name="columns">The names of the columns to update.</param>
+	public static async Task UpdateAsync<T>(this IDbConnection connection, T entity, params string[] columns) where T: class {
+		var (sql, parameters) = GetUpdateQuery(entity, columns);
+		await connection.ExecuteAsync(sql, parameters);
+	}
 }
