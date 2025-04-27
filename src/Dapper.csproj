@@ -4,7 +4,7 @@
 		<Copyright>© Cédric Belin</Copyright>
 		<Description>Extensions methods, custom type maps and type handlers for Dapper.</Description>
 		<Product>Dapper Extensions</Product>
-		<Version>0.4.0</Version>
+		<Version>0.5.0</Version>
 	</PropertyGroup>
 
 	<PropertyGroup>
