@@ -50,15 +50,8 @@ public sealed class SqlMapperExtensionsTest {
 
 	[TestMethod]
 	public void GetInsertQuery() {
-		var (sql, parameters) = GetInsertQuery<AttributedEntity>(new AttributedEntity { EntityName = "Cédric" });
-		AreEqual("INSERT INTO Entities (Name) VALUES (@EntityName)", sql);
-		AreEqual("Cédric", parameters.Get<string>("EntityName"));
-		Throws<KeyNotFoundException>(() => parameters.Get<bool>("IsMapped"));
-
-		(sql, parameters) = GetInsertQuery<PlainEntity>(new PlainEntity { Name = "Cédric" });
-		AreEqual("INSERT INTO PlainEntity (Name, IsMapped) VALUES (@Name, @IsMapped)", sql);
-		AreEqual("Cédric", parameters.Get<string>("Name"));
-		IsTrue(parameters.Get<bool>("IsMapped"));
+		AreEqual("INSERT INTO Entities (Name) VALUES (@EntityName)", GetInsertQuery<AttributedEntity>());
+		AreEqual("INSERT INTO PlainEntity (Name, IsMapped) VALUES (@Name, @IsMapped)", GetInsertQuery<PlainEntity>());
 	}
 
 	[TestMethod]
@@ -73,7 +66,6 @@ public sealed class SqlMapperExtensionsTest {
 	public void GetSingleKey() {
 		AreEqual("EntityId", GetSingleKey<AttributedEntity>().Name);
 		AreEqual("Id", GetSingleKey<PlainEntity>().Name);
-		// TODO test exception!!!!
 	}
 
 	[TestMethod]
@@ -87,4 +79,10 @@ public sealed class SqlMapperExtensionsTest {
 		AreEqual("TRUNCATE TABLE Entities", GetTruncateQuery<AttributedEntity>());
 		AreEqual("TRUNCATE TABLE PlainEntity", GetTruncateQuery<PlainEntity>());
 	}
+
+	// [TestMethod]
+	// public void GetUpdateQuery() {
+	// 	AreEqual("UPDATE Entities SET Name = @EntityName WHERE Id = @id", GetUpdateQuery<AttributedEntity>());
+	// 	AreEqual("UPDATE PlainEntity SET Name = @Name, IsMapped = @IsMapped WHERE Id = @id", GetUpdateQuery<PlainEntity>());
+	// }
 }

@@ -69,20 +69,17 @@ public static partial class SqlMapperExtensions {
 	}
 
 	/// <summary>
-	/// Gets the SQL query used to insert the specified entity.
+	/// Gets the SQL query used to insert an entity of the specified type.
 	/// </summary>
 	/// <typeparam name="T">The entity type.</typeparam>
-	/// <param name="entity">The entity to insert.</param>
-	/// <returns>The SQL query used to insert the specified entity.</returns>
-	internal static (string Sql, DynamicParameters Parameters) GetInsertQuery<T>(T entity) where T: class {
+	/// <returns>The SQL query used to insert an entity of the specified type.</returns>
+	internal static string GetInsertQuery<T>() where T: class {
 		var singleKey = GetSingleKey<T>();
 		var mappedProperties = GetMappedProperties<T>().Where(property => property.Name != singleKey.Name);
-		var parameters = new DynamicParameters(mappedProperties.ToDictionary(property => property.Name, property => property.GetValue(entity)));
 
 		var fields = mappedProperties.Select(property => property.GetColumnName());
-		var values = parameters.ParameterNames.Select(parameter => $"@{parameter}");
-		var sql = string.Format("INSERT INTO {0} ({1}) VALUES ({2})", GetTableName<T>(), string.Join(", ", fields), string.Join(", ", values));
-		return (sql, parameters);
+		var values = mappedProperties.Select(property => $"@{property.Name}");
+		return string.Format("INSERT INTO {0} ({1}) VALUES ({2})", GetTableName<T>(), string.Join(", ", fields), string.Join(", ", values));
 	}
 
 	/// <summary>
@@ -94,6 +91,15 @@ public static partial class SqlMapperExtensions {
 		var bindingFlags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
 		return typeof(T).GetProperties(bindingFlags).Where(property => !property.IsDefined(typeof(NotMappedAttribute)));
 	}
+
+	/// <summary>
+	/// TODO
+	/// </summary>
+	/// <param name="property">The property.</param>
+	/// <returns>The resolved property name.</returns>
+	// internal static string GetPropertyName(string column, IEnumerable<PropertyInfo> mappedProperties) {
+	// 	property.GetCustomAttribute<ColumnAttribute>()?.Name ?? property.Name;
+	// }
 
 	/// <summary>
 	/// Resolves the property corresponding to the single key of the specified entity type.
@@ -127,24 +133,24 @@ public static partial class SqlMapperExtensions {
 		string.Format("TRUNCATE TABLE {0}", GetTableName<T>());
 
 	/// <summary>
-	/// Gets the SQL query used to update the specified entity.
+	/// Gets the SQL query used to update an entity of the specified type.
 	/// </summary>
 	/// <typeparam name="T">The entity type.</typeparam>
-	/// <param name="entity">The entity to update.</param>
 	/// <param name="columns">The names of the columns to update.</param>
-	/// <returns>The SQL query used to update the specified entity.</returns>
+	/// <param name="entity">The entity to update.</param>
+	/// <returns>The SQL query used to update an entity of the specified type.</returns>
 	internal static (string Sql, DynamicParameters Parameters) GetUpdateQuery<T>(T entity, params string[] columns) where T: class {
 		var singleKey = GetSingleKey<T>();
 		var mappedProperties = GetMappedProperties<T>().Where(property => property.Name != singleKey.Name);
 
-		var fields = columns.Length > 0 ? columns : mappedProperties.Select(property => property.GetColumnName());
-		var parameters = new DynamicParameters(mappedProperties.ToDictionary(property => $"@{property.Name}", property => property.GetValue(entity)));
-
 		var builder = new StringBuilder();
-		foreach (var parameter in parameters.ParameterNames) builder.Append("ToDo = @ToDo");
-		var sql = string.Format("UPDATE {0} SET {1} WHERE {2} = @id", GetTableName<T>(), "TODO", singleKey.GetColumnName());
+		var fields = columns.Length > 0 ? columns : mappedProperties.Select(property => property.GetColumnName());
+		//foreach (var field in fields) builder.AppendFormat("{0} = @{1}", field, GetPropertyName<T>(field));
 
-		parameters.Add("@id", singleKey.GetValue(entity));
+		var sql = string.Format("UPDATE {0} SET {1} WHERE {2} = @id", GetTableName<T>(), builder.ToString(), singleKey.GetColumnName());
+		var parameters = new DynamicParameters(entity);
+		parameters.Add("id", singleKey.GetValue(entity));
+
 		return (sql, parameters);
 	}
 }

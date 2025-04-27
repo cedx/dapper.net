@@ -28,6 +28,16 @@ public static partial class SqlMapperExtensions {
 		await connection.ExecuteAsync(GetDeleteQuery<T>(), new { id }) > 0;
 
 	/// <summary>
+	/// Deletes the specified entity.
+	/// </summary>
+	/// <typeparam name="T">The entity type.</typeparam>
+	/// <param name="connection">The database connection.</param>
+	/// <param name="entity">The entity to delete.</param>
+	/// <returns><see langword="true"/> if the entity has been deleted, otherwise <see langword="false"/>.</returns>
+	public static Task<bool> Delete<T>(this IDbConnection connection, T entity) where T: class =>
+		DeleteAsync<T>(connection, GetSingleKey<T>().GetValue(entity)!);
+
+	/// <summary>
 	/// Deletes all entities of the specified type.
 	/// </summary>
 	/// <typeparam name="T">The entity type.</typeparam>
@@ -64,10 +74,8 @@ public static partial class SqlMapperExtensions {
 	/// <param name="connection">The database connection.</param>
 	/// <param name="entity">The entity to insert.</param>
 	/// <returns>Completes when the specified entity has been inserted.</returns>
-	public static async Task InsertAsync<T>(this IDbConnection connection, T entity) where T: class {
-		var (sql, parameters) = GetInsertQuery(entity);
-		await connection.ExecuteAsync(sql, parameters);
-	}
+	public static async Task InsertAsync<T>(this IDbConnection connection, T entity) where T: class =>
+		await connection.ExecuteAsync(GetInsertQuery<T>(), entity);
 
 	/// <summary>
 	/// Truncates the table associated with the specified entity type.

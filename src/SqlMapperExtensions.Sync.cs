@@ -27,6 +27,16 @@ public static partial class SqlMapperExtensions {
 		connection.Execute(GetDeleteQuery<T>(), new { id }) > 0;
 
 	/// <summary>
+	/// Deletes the specified entity.
+	/// </summary>
+	/// <typeparam name="T">The entity type.</typeparam>
+	/// <param name="connection">The database connection.</param>
+	/// <param name="entity">The entity to delete.</param>
+	/// <returns><see langword="true"/> if the entity has been deleted, otherwise <see langword="false"/>.</returns>
+	public static bool Delete<T>(this IDbConnection connection, T entity) where T: class =>
+		Delete<T>(connection, GetSingleKey<T>().GetValue(entity)!);
+
+	/// <summary>
 	/// Deletes all entities of the specified type.
 	/// </summary>
 	/// <typeparam name="T">The entity type.</typeparam>
@@ -62,10 +72,8 @@ public static partial class SqlMapperExtensions {
 	/// <typeparam name="T">The entity type.</typeparam>
 	/// <param name="connection">The database connection.</param>
 	/// <param name="entity">The entity to insert.</param>
-	public static void Insert<T>(this IDbConnection connection, T entity) where T: class {
-		var (sql, parameters) = GetInsertQuery(entity);
-		connection.Execute(sql, parameters);
-	}
+	public static void Insert<T>(this IDbConnection connection, T entity) where T: class =>
+		connection.Execute(GetInsertQuery<T>(), entity);
 
 	/// <summary>
 	/// Truncates the table associated with the specified entity type.

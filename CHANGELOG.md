@@ -1,7 +1,8 @@
 # Changelog
 
 ## Version [0.4.0](https://github.com/cedx/dapper.net/compare/v0.3.0...v0.4.0)
-- Added the `Insert()` and `Update()` methods to the `SqlMapperExtensions` class.
+- Added the `SqlMapperExtensions.Delete(T entity)` overload.
+- Added the `SqlMapperExtensions.Insert()` method.
 
 ## Version [0.3.0](https://github.com/cedx/dapper.net/compare/v0.2.0...v0.3.0)
 - Added the `SqlMapperExtensions` class.
