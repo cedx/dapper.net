@@ -82,6 +82,7 @@ public static partial class SqlMapperExtensions {
 	/// </summary>
 	/// <param name="connection">The database connection.</param>
 	/// <typeparam name="T">The entity type.</typeparam>
+	/// <returns>Completes when the table has been truncated.</returns>
 	public static async Task TruncateAsync<T>(this IDbConnection connection) where T: class =>
 		await connection.ExecuteAsync(GetTruncateQuery<T>());
 
