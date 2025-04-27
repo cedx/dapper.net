@@ -1,7 +1,7 @@
 namespace Belin.Dapper;
 
 /// <summary>
-/// TODO Defines... ISqlAdapter
+/// Represents a SQL database adapter.
 /// </summary>
 internal interface ISqlAdapter {
 
