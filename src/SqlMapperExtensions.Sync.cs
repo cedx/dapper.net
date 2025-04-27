@@ -90,8 +90,9 @@ public static partial class SqlMapperExtensions {
 	/// <param name="connection">The database connection.</param>
 	/// <param name="entity">The entity to update.</param>
 	/// <param name="columns">The names of the columns to update.</param>
-	public static void Update<T>(this IDbConnection connection, T entity, params string[] columns) where T: class {
+	/// <returns><see langword="true"/> if the entity has been deleted, otherwise <see langword="false"/>.</returns>
+	public static bool Update<T>(this IDbConnection connection, T entity, params string[] columns) where T: class {
 		var (sql, parameters) = GetUpdateQuery(entity, columns);
-		connection.Execute(sql, parameters);
+		return connection.Execute(sql, parameters) > 0;
 	}
 }

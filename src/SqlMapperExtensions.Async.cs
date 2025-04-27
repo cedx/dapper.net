@@ -92,8 +92,9 @@ public static partial class SqlMapperExtensions {
 	/// <param name="connection">The database connection.</param>
 	/// <param name="entity">The entity to update.</param>
 	/// <param name="columns">The names of the columns to update.</param>
-	public static async Task UpdateAsync<T>(this IDbConnection connection, T entity, params string[] columns) where T: class {
+	/// <returns><see langword="true"/> if the entity has been deleted, otherwise <see langword="false"/>.</returns>
+	public static async Task<bool> UpdateAsync<T>(this IDbConnection connection, T entity, params string[] columns) where T: class {
 		var (sql, parameters) = GetUpdateQuery(entity, columns);
-		await connection.ExecuteAsync(sql, parameters);
+		return (await connection.ExecuteAsync(sql, parameters)) > 0;
 	}
 }
