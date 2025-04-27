@@ -55,8 +55,23 @@ public static partial class SqlMapperExtensions {
 	/// </summary>
 	/// <param name="property">The property.</param>
 	/// <returns>The resolved column name.</returns>
-	private static string GetColumnName(this PropertyInfo property) =>
+	internal static string GetColumnName(this PropertyInfo property) =>
 		property.GetCustomAttribute<ColumnAttribute>()?.Name ?? property.Name;
+
+	/// <summary>
+	/// Gets the properties of the specified entity type that are mapped to a database column.
+	/// </summary>
+	/// <typeparam name="T">The entity type.</typeparam>
+	/// <param name="excludeSingleKey">Value indicating whether to exclude the single key from the returned properties.</param>
+	/// <returns>The mapped properties.</returns>
+	internal static IEnumerable<PropertyInfo> GetMappedProperties<T>(bool excludeSingleKey = false) where T: class {
+		var bindingFlags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
+		var properties = typeof(T).GetProperties(bindingFlags).Where(property => !property.IsDefined(typeof(NotMappedAttribute)));
+		if (!excludeSingleKey) return properties;
+
+		var singleKey = GetSingleKey<T>();
+		return properties.Where(property => property.Name != singleKey.Name);
+	}
 
 	/// <summary>
 	/// Resolves the property corresponding to the single key of the specified entity type.
@@ -64,7 +79,7 @@ public static partial class SqlMapperExtensions {
 	/// <typeparam name="T">The entity type.</typeparam>
 	/// <returns>The resolved property.</returns>
 	/// <exception cref="DataException">The single key is not found.</exception>
-	private static PropertyInfo GetSingleKey<T>() where T: class {
+	internal static PropertyInfo GetSingleKey<T>() where T: class {
 		var bindingFlags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
 		var type = typeof(T);
 		var member = type.GetProperties(bindingFlags).SingleOrDefault(property => property.IsDefined(typeof(KeyAttribute)));
@@ -76,7 +91,7 @@ public static partial class SqlMapperExtensions {
 	/// </summary>
 	/// <typeparam name="T">The entity type.</typeparam>
 	/// <returns>The resolved table name.</returns>
-	private static string GetTableName<T>() where T: class {
+	internal static string GetTableName<T>() where T: class {
 		var type = typeof(T);
 		return type.GetCustomAttribute<TableAttribute>()?.Name ?? type.Name;
 	}

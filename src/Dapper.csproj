@@ -27,6 +27,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<InternalsVisibleTo Include="Belin.Dapper.Tests" />
 		<None Include="../README.md" Pack="true" PackagePath="/" />
 	</ItemGroup>
 
