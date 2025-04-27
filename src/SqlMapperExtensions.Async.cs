@@ -24,7 +24,7 @@ public static partial class SqlMapperExtensions {
 	/// <param name="connection">The database connection.</param>
 	/// <param name="id">The entity identifier.</param>
 	/// <returns><see langword="true"/> if the entity has been deleted, otherwise <see langword="false"/>.</returns>
-	public static async Task<bool> DeleteAsync<T>(this IDbConnection connection, dynamic id) where T: class {
+	public static async Task<bool> DeleteAsync<T>(this IDbConnection connection, object id) where T: class {
 		var key = GetSingleKey<T>().GetColumnName();
 		return await connection.ExecuteAsync(string.Format(DeleteQuery, GetTableName<T>(), key), new { id }) > 0;
 	}
@@ -46,7 +46,7 @@ public static partial class SqlMapperExtensions {
 	/// <param name="id">The entity identifier.</param>
 	/// <param name="columns">The names of the columns to fetch.</param>
 	/// <returns>The entity with the specified identifier, or <see langword="null"/> if not found.</returns>
-	public static async Task<T?> FetchAsync<T>(this IDbConnection connection, dynamic id, params string[] columns) where T: class {
+	public static async Task<T?> FetchAsync<T>(this IDbConnection connection, object id, params string[] columns) where T: class {
 		var fields = columns.Length > 0 ? string.Join(", ", columns) : "*";
 		var key = GetSingleKey<T>().GetColumnName();
 		return await connection.QuerySingleOrDefaultAsync<T>(string.Format(FetchQuery, fields, GetTableName<T>(), key), new { id });
