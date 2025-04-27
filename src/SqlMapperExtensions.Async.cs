@@ -15,7 +15,7 @@ public static partial class SqlMapperExtensions {
 	/// <param name="connection">The database connection.</param>
 	/// <returns>The total number of entities.</returns>
 	public static async Task<int> CountAsync<T>(this IDbConnection connection) where T: class =>
-		await connection.ExecuteScalarAsync<int>(string.Format(CountQuery, GetTableName<T>()));
+		await connection.ExecuteScalarAsync<int>(GetCountQuery<T>());
 
 	/// <summary>
 	/// Deletes the entity with the specified identifier.
@@ -24,11 +24,8 @@ public static partial class SqlMapperExtensions {
 	/// <param name="connection">The database connection.</param>
 	/// <param name="id">The entity identifier.</param>
 	/// <returns><see langword="true"/> if the entity has been deleted, otherwise <see langword="false"/>.</returns>
-	public static async Task<bool> DeleteAsync<T>(this IDbConnection connection, object id) where T: class {
-		var singleKey = GetSingleKey<T>();
-		var sql = string.Format(DeleteQuery, GetTableName<T>(), singleKey.GetColumnName());
-		return await connection.ExecuteAsync(sql, new { id }) > 0;
-	}
+	public static async Task<bool> DeleteAsync<T>(this IDbConnection connection, object id) where T: class =>
+		await connection.ExecuteAsync(GetDeleteQuery<T>(), new { id }) > 0;
 
 	/// <summary>
 	/// Deletes all entities of the specified type.
@@ -37,7 +34,7 @@ public static partial class SqlMapperExtensions {
 	/// <param name="connection">The database connection.</param>
 	/// <returns>The number of affected rows.</returns>
 	public static async Task<int> DeleteAllAsync<T>(this IDbConnection connection) where T: class =>
-		await connection.ExecuteAsync(string.Format(DeleteAllQuery, GetTableName<T>()));
+		await connection.ExecuteAsync(GetDeleteAllQuery<T>());
 
 	/// <summary>
 	/// Fetches the entity with the specified identifier.
@@ -47,12 +44,8 @@ public static partial class SqlMapperExtensions {
 	/// <param name="id">The entity identifier.</param>
 	/// <param name="columns">The names of the columns to fetch.</param>
 	/// <returns>The entity with the specified identifier, or <see langword="null"/> if not found.</returns>
-	public static async Task<T?> FetchAsync<T>(this IDbConnection connection, object id, params string[] columns) where T: class {
-		var fields = columns.Length > 0 ? string.Join(", ", columns) : "*";
-		var singleKey = GetSingleKey<T>();
-		var sql = string.Format(FetchQuery, fields, GetTableName<T>(), singleKey.GetColumnName());
-		return await connection.QuerySingleOrDefaultAsync<T>(sql, new { id });
-	}
+	public static async Task<T?> FetchAsync<T>(this IDbConnection connection, object id, params string[] columns) where T: class =>
+		await connection.QuerySingleOrDefaultAsync<T>(GetFetchQuery<T>(columns), new { id });
 
 	/// <summary>
 	/// Fetches all entities of the specified type.
@@ -61,10 +54,8 @@ public static partial class SqlMapperExtensions {
 	/// <param name="connection">The database connection.</param>
 	/// <param name="columns">The names of the columns to fetch.</param>
 	/// <returns>The entity list.</returns>
-	public static async Task<IEnumerable<T>> FetchAllAsync<T>(this IDbConnection connection, params string[] columns) where T: class {
-		var fields = columns.Length > 0 ? string.Join(", ", columns) : "*";
-		return await connection.QueryAsync<T>(string.Format(FetchAllQuery, fields, GetTableName<T>()));
-	}
+	public static async Task<IEnumerable<T>> FetchAllAsync<T>(this IDbConnection connection, params string[] columns) where T: class =>
+		await connection.QueryAsync<T>(GetFetchAllQuery<T>(columns));
 
 	/// <summary>
 	/// Inserts the specified entity.
@@ -74,12 +65,7 @@ public static partial class SqlMapperExtensions {
 	/// <param name="entity">The entity to insert.</param>
 	/// <returns>Completes when the specified entity has been inserted.</returns>
 	public static async Task InsertAsync<T>(this IDbConnection connection, T entity) where T: class {
-		var singleKey = GetSingleKey<T>();
-		var mappedProperties = GetMappedProperties<T>().Where(property => property.Name != singleKey.Name);
-
-		var fields = mappedProperties.Select(property => property.GetColumnName());
-		var parameters = new DynamicParameters(mappedProperties.ToDictionary(property => $"@{property.Name}", property => property.GetValue(entity)));
-		var sql = string.Format(InsertQuery, GetTableName<T>(), string.Join(", ", fields), string.Join(", ", parameters.ParameterNames));
+		var (sql, parameters) = GetInsertQuery(entity);
 		await connection.ExecuteAsync(sql, parameters);
 	}
 
@@ -89,5 +75,5 @@ public static partial class SqlMapperExtensions {
 	/// <param name="connection">The database connection.</param>
 	/// <typeparam name="T">The entity type.</typeparam>
 	public static async Task TruncateAsync<T>(this IDbConnection connection) where T: class =>
-		await connection.ExecuteAsync(string.Format(TruncateQuery, GetTableName<T>()));
+		await connection.ExecuteAsync(GetTruncateQuery<T>());
 }

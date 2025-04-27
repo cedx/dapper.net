@@ -11,41 +11,6 @@ using System.Reflection;
 public static partial class SqlMapperExtensions {
 
 	/// <summary>
-	/// The query pattern used to count the entities.
-	/// </summary>
-	private const string CountQuery = "SELECT COUNT(*) FROM {0}";
-
-	/// <summary>
-	/// The query pattern used to delete an entity.
-	/// </summary>
-	private const string DeleteQuery = "DELETE FROM {0} WHERE {1} = @id";
-
-	/// <summary>
-	/// The query pattern used to delete all entities.
-	/// </summary>
-	private const string DeleteAllQuery = "DELETE FROM {0}";
-
-	/// <summary>
-	/// The query pattern used to fetch an entity.
-	/// </summary>
-	private const string FetchQuery = "SELECT {0} FROM {1} WHERE {2} = @id";
-
-	/// <summary>
-	/// The query pattern used to fetch all entities.
-	/// </summary>
-	private const string FetchAllQuery = "SELECT {0} FROM {1}";
-
-	/// <summary>
-	/// The query pattern used to insert an entity.
-	/// </summary>
-	private const string InsertQuery = "INSERT INTO {0} ({1}) VALUES ({2})";
-
-	/// <summary>
-	/// The query pattern used to truncate a table.
-	/// </summary>
-	private const string TruncateQuery = "TRUNCATE TABLE {0}";
-
-	/// <summary>
 	/// The query pattern used to update an entity.
 	/// </summary>
 	private const string UpdateQuery = "UPDATE {0} SET {1} WHERE {2} = @id";
@@ -57,6 +22,72 @@ public static partial class SqlMapperExtensions {
 	/// <returns>The resolved column name.</returns>
 	internal static string GetColumnName(this PropertyInfo property) =>
 		property.GetCustomAttribute<ColumnAttribute>()?.Name ?? property.Name;
+
+	/// <summary>
+	/// TODO
+	/// </summary>
+	/// <typeparam name="T">The entity type.</typeparam>
+	/// <returns>TODO</returns>
+	internal static string GetCountQuery<T>() where T: class =>
+		string.Format("SELECT COUNT(*) FROM {0}", GetTableName<T>());
+
+	/// <summary>
+	/// TODO
+	/// </summary>
+	/// <typeparam name="T">The entity type.</typeparam>
+	/// <returns>TODO</returns>
+	internal static string GetDeleteQuery<T>() where T: class {
+		var singleKey = GetSingleKey<T>();
+		return string.Format("DELETE FROM {0} WHERE {1} = @id", GetTableName<T>(), singleKey.GetColumnName());
+	}
+
+	/// <summary>
+	/// TODO
+	/// </summary>
+	/// <typeparam name="T">The entity type.</typeparam>
+	/// <returns>TODO</returns>
+	internal static string GetDeleteAllQuery<T>() where T: class =>
+		string.Format("DELETE FROM {0}", GetTableName<T>());
+
+	/// <summary>
+	/// TODO
+	/// </summary>
+	/// <typeparam name="T">The entity type.</typeparam>
+	/// <param name="columns">The names of the columns to fetch.</param>
+	/// <returns>TODO</returns>
+	internal static string GetFetchQuery<T>(params string[] columns) where T: class {
+		var fields = columns.Length > 0 ? string.Join(", ", columns) : "*";
+		var singleKey = GetSingleKey<T>();
+		return string.Format("SELECT {0} FROM {1} WHERE {2} = @id", fields, GetTableName<T>(), singleKey.GetColumnName());
+	}
+
+	/// <summary>
+	/// TODO
+	/// </summary>
+	/// <typeparam name="T">The entity type.</typeparam>
+	/// <param name="columns">The names of the columns to fetch.</param>
+	/// <returns>TODO</returns>
+	internal static string GetFetchAllQuery<T>(params string[] columns) where T: class {
+		var fields = columns.Length > 0 ? string.Join(", ", columns) : "*";
+		return string.Format("SELECT {0} FROM {1}", fields, GetTableName<T>());
+	}
+
+	/// <summary>
+	/// TODO
+	/// </summary>
+	/// <typeparam name="T">The entity type.</typeparam>
+	/// <param name="entity">The entity to insert.</param>
+	/// <returns>TODO</returns>
+	internal static (string Sql, DynamicParameters Parameters) GetInsertQuery<T>(T entity) where T: class {
+		var singleKey = GetSingleKey<T>();
+		var mappedProperties = GetMappedProperties<T>().Where(property => property.Name != singleKey.Name);
+		var parameters = new DynamicParameters(mappedProperties.ToDictionary(property => property.Name, property => property.GetValue(entity)));
+
+		var fields = mappedProperties.Select(property => property.GetColumnName());
+		var values = parameters.ParameterNames.Select(parameter => $"@{parameter}");
+		var sql = string.Format("INSERT INTO {0} ({1}) VALUES ({2})", GetTableName<T>(), string.Join(", ", fields), string.Join(", ", values));
+		return (sql, parameters);
+	}
 
 	/// <summary>
 	/// Gets the properties of the specified entity type that are mapped to a database column.
@@ -90,4 +121,12 @@ public static partial class SqlMapperExtensions {
 		var type = typeof(T);
 		return type.GetCustomAttribute<TableAttribute>()?.Name ?? type.Name;
 	}
+
+	/// <summary>
+	/// TODO
+	/// </summary>
+	/// <typeparam name="T">The entity type.</typeparam>
+	/// <returns>TODO</returns>
+	internal static string GetTruncateQuery<T>() where T: class =>
+		string.Format("TRUNCATE TABLE {0}", GetTableName<T>());
 }
