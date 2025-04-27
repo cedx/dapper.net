@@ -8,7 +8,7 @@ internal class SqlAdapter: ISqlAdapter {
 	/// <summary>
 	/// The SQL query used to fetch the identifier of the last inserted row.
 	/// </summary>
-	public string LastInsertIdQuery => "SELECT SCOPE_IDENTITY()";
+	public string LastInsertIdQuery => "SELECT SCOPE_IDENTITY() AS Id";
 
 	/// <summary>
 	/// Escapes the specified identifier.
