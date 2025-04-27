@@ -1,9 +1,14 @@
 namespace Belin.Dapper;
 
 /// <summary>
-/// TODO
+/// The SQL Server database adapter.
 /// </summary>
-internal class SqlServerAdapter {
+internal class SqlAdapter: ISqlAdapter {
+
+	/// <summary>
+	/// The SQL query used to fetch the identifier of the last inserted row.
+	/// </summary>
+	public string LastInsertIdQuery => "SELECT SCOPE_IDENTITY()";
 
 	/// <summary>
 	/// Escapes the specified identifier.
