@@ -62,15 +62,10 @@ public static partial class SqlMapperExtensions {
 	/// Gets the properties of the specified entity type that are mapped to a database column.
 	/// </summary>
 	/// <typeparam name="T">The entity type.</typeparam>
-	/// <param name="excludeSingleKey">Value indicating whether to exclude the single key from the returned properties.</param>
 	/// <returns>The mapped properties.</returns>
-	internal static IEnumerable<PropertyInfo> GetMappedProperties<T>(bool excludeSingleKey = false) where T: class {
+	internal static IEnumerable<PropertyInfo> GetMappedProperties<T>() where T: class {
 		var bindingFlags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
-		var properties = typeof(T).GetProperties(bindingFlags).Where(property => !property.IsDefined(typeof(NotMappedAttribute)));
-		if (!excludeSingleKey) return properties;
-
-		var singleKey = GetSingleKey<T>();
-		return properties.Where(property => property.Name != singleKey.Name);
+		return typeof(T).GetProperties(bindingFlags).Where(property => !property.IsDefined(typeof(NotMappedAttribute)));
 	}
 
 	/// <summary>

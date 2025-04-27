@@ -19,7 +19,7 @@ public sealed class SqlMapperExtensionsTest {
 		var properties = GetMappedProperties<AttributedEntity>().Select(property => property.Name);
 		CollectionAssert.AreEquivalent(new[] { "EntityId", "EntityName" }, properties.ToArray());
 		properties = GetMappedProperties<PlainEntity>().Select(property => property.Name);
-		CollectionAssert.AreEquivalent(new[] { "Id", "Name", "IsArchived" }, properties.ToArray());
+		CollectionAssert.AreEquivalent(new[] { "Id", "Name", "IsMapped" }, properties.ToArray());
 	}
 
 	[TestMethod]

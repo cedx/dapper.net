@@ -1,6 +1,7 @@
 namespace Belin.Dapper;
 
 using System.Data;
+using System.Text;
 
 /// <summary>
 /// Provides synchronous extension methods for database connections.
@@ -24,8 +25,9 @@ public static partial class SqlMapperExtensions {
 	/// <param name="id">The entity identifier.</param>
 	/// <returns><see langword="true"/> if the entity has been deleted, otherwise <see langword="false"/>.</returns>
 	public static bool Delete<T>(this IDbConnection connection, object id) where T: class {
-		var key = GetSingleKey<T>().GetColumnName();
-		return connection.Execute(string.Format(DeleteQuery, GetTableName<T>(), key), new { id }) > 0;
+		var singleKey = GetSingleKey<T>();
+		var sql = string.Format(DeleteQuery, GetTableName<T>(), singleKey.GetColumnName());
+		return connection.Execute(sql, new { id }) > 0;
 	}
 
 	/// <summary>
@@ -47,8 +49,9 @@ public static partial class SqlMapperExtensions {
 	/// <returns>The entity with the specified identifier, or <see langword="null"/> if not found.</returns>
 	public static T? Fetch<T>(this IDbConnection connection, object id, params string[] columns) where T: class {
 		var fields = columns.Length > 0 ? string.Join(", ", columns) : "*";
-		var key = GetSingleKey<T>().GetColumnName();
-		return connection.QuerySingleOrDefault<T>(string.Format(FetchQuery, fields, GetTableName<T>(), key), new { id });
+		var singleKey = GetSingleKey<T>();
+		var sql = string.Format(FetchQuery, fields, GetTableName<T>(), singleKey.GetColumnName());
+		return connection.QuerySingleOrDefault<T>(sql, new { id });
 	}
 
 	/// <summary>
@@ -61,6 +64,22 @@ public static partial class SqlMapperExtensions {
 	public static IEnumerable<T> FetchAll<T>(this IDbConnection connection, params string[] columns) where T: class {
 		var fields = columns.Length > 0 ? string.Join(", ", columns) : "*";
 		return connection.Query<T>(string.Format(FetchAllQuery, fields, GetTableName<T>()));
+	}
+
+	/// <summary>
+	/// Inserts the specified entity.
+	/// </summary>
+	/// <typeparam name="T">The entity type.</typeparam>
+	/// <param name="connection">The database connection.</param>
+	/// <param name="entity">The entity to insert.</param>
+	public static void Insert<T>(this IDbConnection connection, T entity) where T: class {
+		var singleKey = GetSingleKey<T>();
+		var mappedProperties = GetMappedProperties<T>().Where(property => property.Name != singleKey.Name);
+
+		var fields = mappedProperties.Select(property => property.GetColumnName());
+		var parameters = new DynamicParameters(mappedProperties.ToDictionary(property => $"@{property.Name}", property => property.GetValue(entity)));
+		var sql = string.Format(InsertQuery, GetTableName<T>(), string.Join(", ", fields), string.Join(", ", parameters.ParameterNames));
+		connection.Execute(sql, parameters);
 	}
 
 	/// <summary>
