@@ -115,6 +115,17 @@ public static partial class SqlMapperExtensions {
 	}
 
 	/// <summary>
+	/// Gets the SQL adapter corresponding to the specified database connection.
+	/// </summary>
+	/// <param name="connection">The database connection.</param>
+	/// <returns>The SQL adapter corresponding to the specified database connection.</returns>
+	internal static ISqlAdapter GetSqlAdapter(this IDbConnection connection) => connection.GetType().Name switch {
+		"MySqlConnection" => new MySqlAdapter(),
+		"SqliteConnection" => new SqliteAdapter(),
+		_ => new SqlAdapter()
+	};
+
+	/// <summary>
 	/// Resolves the table name of the table corresponding the specified entity type.
 	/// </summary>
 	/// <typeparam name="T">The entity type.</typeparam>
