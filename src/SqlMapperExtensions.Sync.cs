@@ -33,8 +33,11 @@ public static partial class SqlMapperExtensions {
 	/// <param name="connection">The database connection.</param>
 	/// <param name="entity">The entity to delete.</param>
 	/// <returns><see langword="true"/> if the entity has been deleted, otherwise <see langword="false"/>.</returns>
-	public static bool Delete<T>(this IDbConnection connection, T entity) where T: class =>
-		Delete<T>(connection, GetSingleKey<T>().GetValue(entity)!);
+	/// <exception cref="DataException">The single key could not be determined.</exception>
+	public static bool Delete<T>(this IDbConnection connection, T entity) where T: class {
+		var singleKey = GetSingleKey<T>() ?? throw new DataException("Unable to find the single key.");
+		return Delete<T>(connection, singleKey.GetValue(entity)!);
+	}
 
 	/// <summary>
 	/// Deletes all entities of the specified type.
@@ -72,8 +75,16 @@ public static partial class SqlMapperExtensions {
 	/// <typeparam name="T">The entity type.</typeparam>
 	/// <param name="connection">The database connection.</param>
 	/// <param name="entity">The entity to insert.</param>
-	public static void Insert<T>(this IDbConnection connection, T entity) where T: class =>
-		connection.Execute(GetInsertQuery<T>(), entity);
+	/// <returns>The identifier of the inserted row.</returns>
+	public static long Insert<T>(this IDbConnection connection, T entity) where T: class {
+		var sql = $"{GetInsertQuery<T>()}; {connection.GetSqlAdapter().LastInsertIdQuery};";
+		var first = connection.QueryMultiple(sql, entity).ReadFirstOrDefault();
+		if (first is null || first.Id is null) return 0;
+
+		var singleKey = GetSingleKey<T>();
+		singleKey?.SetValue(entity, Convert.ChangeType(first.Id, singleKey.PropertyType));
+		return (long) first.Id;
+	}
 
 	/// <summary>
 	/// Truncates the table associated with the specified entity type.
@@ -91,8 +102,6 @@ public static partial class SqlMapperExtensions {
 	/// <param name="entity">The entity to update.</param>
 	/// <param name="columns">The names of the columns to update.</param>
 	/// <returns><see langword="true"/> if the entity has been deleted, otherwise <see langword="false"/>.</returns>
-	public static bool Update<T>(this IDbConnection connection, T entity, params string[] columns) where T: class {
-		var (sql, parameters) = GetUpdateQuery(entity, columns);
-		return connection.Execute(sql, parameters) > 0;
-	}
+	public static bool Update<T>(this IDbConnection connection, T entity, params string[] columns) where T: class =>
+		connection.Execute(GetUpdateQuery<T>(columns), entity) > 0;
 }

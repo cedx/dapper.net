@@ -34,8 +34,11 @@ public static partial class SqlMapperExtensions {
 	/// <param name="connection">The database connection.</param>
 	/// <param name="entity">The entity to delete.</param>
 	/// <returns><see langword="true"/> if the entity has been deleted, otherwise <see langword="false"/>.</returns>
-	public static async Task<bool> DeleteAsync<T>(this IDbConnection connection, T entity) where T: class =>
-		await DeleteAsync<T>(connection, GetSingleKey<T>().GetValue(entity)!);
+	/// <exception cref="DataException">The single key could not be determined.</exception>
+	public static async Task<bool> DeleteAsync<T>(this IDbConnection connection, T entity) where T: class {
+		var singleKey = GetSingleKey<T>() ?? throw new DataException("Unable to find the single key.");
+		return await DeleteAsync<T>(connection, singleKey.GetValue(entity)!);
+	}
 
 	/// <summary>
 	/// Deletes all entities of the specified type.
@@ -73,9 +76,16 @@ public static partial class SqlMapperExtensions {
 	/// <typeparam name="T">The entity type.</typeparam>
 	/// <param name="connection">The database connection.</param>
 	/// <param name="entity">The entity to insert.</param>
-	/// <returns>Completes when the specified entity has been inserted.</returns>
-	public static async Task InsertAsync<T>(this IDbConnection connection, T entity) where T: class =>
-		await connection.ExecuteAsync(GetInsertQuery<T>(), entity);
+	/// <returns>The identifier of the inserted row.</returns>
+	public static async Task<long> InsertAsync<T>(this IDbConnection connection, T entity) where T: class {
+		var sql = $"{GetInsertQuery<T>()}; {connection.GetSqlAdapter().LastInsertIdQuery};";
+		var first = await (await connection.QueryMultipleAsync(sql, entity)).ReadFirstOrDefaultAsync();
+		if (first is null || first.Id is null) return 0;
+
+		var singleKey = GetSingleKey<T>();
+		singleKey?.SetValue(entity, Convert.ChangeType(first.Id, singleKey.PropertyType));
+		return (long) first.Id;
+	}
 
 	/// <summary>
 	/// Truncates the table associated with the specified entity type.
@@ -94,8 +104,6 @@ public static partial class SqlMapperExtensions {
 	/// <param name="entity">The entity to update.</param>
 	/// <param name="columns">The names of the columns to update.</param>
 	/// <returns><see langword="true"/> if the entity has been deleted, otherwise <see langword="false"/>.</returns>
-	public static async Task<bool> UpdateAsync<T>(this IDbConnection connection, T entity, params string[] columns) where T: class {
-		var (sql, parameters) = GetUpdateQuery(entity, columns);
-		return (await connection.ExecuteAsync(sql, parameters)) > 0;
-	}
+	public static async Task<bool> UpdateAsync<T>(this IDbConnection connection, T entity, params string[] columns) where T: class =>
+		(await connection.ExecuteAsync(GetUpdateQuery<T>(columns), entity)) > 0;
 }

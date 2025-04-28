@@ -64,8 +64,8 @@ public sealed class SqlMapperExtensionsTest {
 
 	[TestMethod]
 	public void GetSingleKey() {
-		AreEqual("EntityId", GetSingleKey<AttributedEntity>().Name);
-		AreEqual("Id", GetSingleKey<PlainEntity>().Name);
+		AreEqual("EntityId", GetSingleKey<AttributedEntity>()?.Name);
+		AreEqual("Id", GetSingleKey<PlainEntity>()?.Name);
 	}
 
 	[TestMethod]
@@ -80,11 +80,11 @@ public sealed class SqlMapperExtensionsTest {
 		AreEqual("TRUNCATE TABLE PlainEntity", GetTruncateQuery<PlainEntity>());
 	}
 
-	// [TestMethod]
-	// public void GetUpdateQuery() {
-	// 	AreEqual("UPDATE Entities SET Name = @EntityName WHERE Id = @id", GetUpdateQuery<AttributedEntity>());
-	// 	AreEqual("UPDATE PlainEntity SET Name = @Name, IsMapped = @IsMapped WHERE Id = @id", GetUpdateQuery<PlainEntity>());
-	// }
+	[TestMethod]
+	public void GetUpdateQuery() {
+		AreEqual("UPDATE Entities SET Name = @EntityName WHERE Id = @EntityId", GetUpdateQuery<AttributedEntity>());
+		AreEqual("UPDATE PlainEntity SET Name = @Name, IsMapped = @IsMapped WHERE Id = @Id", GetUpdateQuery<PlainEntity>());
+	}
 
 	[TestMethod]
 	public void IsDatabaseGenerated() {

@@ -32,8 +32,9 @@ public static partial class SqlMapperExtensions {
 	/// </summary>
 	/// <typeparam name="T">The entity type.</typeparam>
 	/// <returns>The SQL query used to delete an entity of the specified type.</returns>
+	/// <exception cref="DataException">The single key could not be determined.</exception>
 	internal static string GetDeleteQuery<T>() where T: class {
-		var singleKey = GetSingleKey<T>();
+		var singleKey = GetSingleKey<T>() ?? throw new DataException("Unable to find the single key.");
 		return string.Format("DELETE FROM {0} WHERE {1} = @id", GetTableName<T>(), singleKey.GetColumnName());
 	}
 
@@ -51,9 +52,10 @@ public static partial class SqlMapperExtensions {
 	/// <typeparam name="T">The entity type.</typeparam>
 	/// <param name="columns">The names of the columns to fetch.</param>
 	/// <returns>The SQL query used to fetch an entity of the specified type.</returns>
+	/// <exception cref="DataException">The single key could not be determined.</exception>
 	internal static string GetFetchQuery<T>(params string[] columns) where T: class {
 		var fields = columns.Length > 0 ? string.Join(", ", columns) : "*";
-		var singleKey = GetSingleKey<T>();
+		var singleKey = GetSingleKey<T>() ?? throw new DataException("Unable to find the single key.");
 		return string.Format("SELECT {0} FROM {1} WHERE {2} = @id", fields, GetTableName<T>(), singleKey.GetColumnName());
 	}
 
@@ -76,7 +78,7 @@ public static partial class SqlMapperExtensions {
 	internal static string GetInsertQuery<T>() where T: class {
 		var singleKey = GetSingleKey<T>();
 		var mappedProperties = GetMappedProperties<T>();
-		if (singleKey.IsDatabaseGenerated()) mappedProperties = mappedProperties.Where(property => property.Name != singleKey.Name);
+		if (singleKey?.IsDatabaseGenerated() ?? false) mappedProperties = mappedProperties.Where(property => property.Name != singleKey.Name);
 
 		var fields = mappedProperties.Select(property => property.GetColumnName());
 		var values = mappedProperties.Select(property => $"@{property.Name}");
@@ -106,13 +108,11 @@ public static partial class SqlMapperExtensions {
 	/// Resolves the property corresponding to the single key of the specified entity type.
 	/// </summary>
 	/// <typeparam name="T">The entity type.</typeparam>
-	/// <returns>The resolved property.</returns>
-	/// <exception cref="DataException">The single key is not found.</exception>
-	internal static PropertyInfo GetSingleKey<T>() where T: class {
+	/// <returns>The resolved property, or <see langword="null"/> if not found.</returns>
+	internal static PropertyInfo? GetSingleKey<T>() where T: class {
 		var bindingFlags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
 		var type = typeof(T);
-		var member = type.GetProperties(bindingFlags).SingleOrDefault(property => property.IsDefined(typeof(KeyAttribute)));
-		return member ?? type.GetProperty("Id", bindingFlags) ?? throw new DataException("Unable to find the single key.");
+		return type.GetProperties(bindingFlags).SingleOrDefault(property => property.IsDefined(typeof(KeyAttribute))) ?? type.GetProperty("Id", bindingFlags);
 	}
 
 	/// <summary>
@@ -149,21 +149,20 @@ public static partial class SqlMapperExtensions {
 	/// </summary>
 	/// <typeparam name="T">The entity type.</typeparam>
 	/// <param name="columns">The names of the columns to update.</param>
-	/// <param name="entity">The entity to update.</param>
 	/// <returns>The SQL query used to update an entity of the specified type.</returns>
-	internal static (string Sql, DynamicParameters Parameters) GetUpdateQuery<T>(T entity, params string[] columns) where T: class {
-		var singleKey = GetSingleKey<T>();
+	/// <exception cref="DataException">The single key could not be determined.</exception>
+	internal static string GetUpdateQuery<T>(params string[] columns) where T: class {
+		var singleKey = GetSingleKey<T>() ?? throw new DataException("Unable to find the single key.");
 		var mappedProperties = GetMappedProperties<T>().Where(property => property.Name != singleKey.Name);
 
 		var builder = new StringBuilder();
-		var fields = columns.Length > 0 ? columns : mappedProperties.Select(property => property.GetColumnName());
-		//foreach (var field in fields) builder.AppendFormat("{0} = @{1}", field, GetPropertyName<T>(field));
+		var fields = columns.Length > 0 ? columns : [.. mappedProperties.Select(property => property.GetColumnName())];
+		for (var i = 0; i < fields.Length; i++) {
+			builder.AppendFormat("{0} = @{1}", fields[i], mappedProperties.Single(property => property.GetColumnName() == fields[i]).Name);
+			if (i < fields.Length - 1) builder.Append(", ");
+		}
 
-		var sql = string.Format("UPDATE {0} SET {1} WHERE {2} = @id", GetTableName<T>(), builder.ToString(), singleKey.GetColumnName());
-		var parameters = new DynamicParameters(entity);
-		parameters.Add("id", singleKey.GetValue(entity));
-
-		return (sql, parameters);
+		return string.Format("UPDATE {0} SET {1} WHERE {2} = @{3}", GetTableName<T>(), builder.ToString(), singleKey.GetColumnName(), singleKey.Name);
 	}
 
 	/// <summary>

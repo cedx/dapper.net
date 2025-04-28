@@ -1,6 +1,7 @@
 # Changelog
 
 ## Version [0.5.0](https://github.com/cedx/dapper.net/compare/v0.4.0...v0.5.0)
+- Added the `SqlMapperExtensions.Update()` method.
 - Added the `StringEnumTypeHandler` type handler.
 - Added the `mapToIPv6` parameter to the `IPAddressTypeHandler` constructor.
 

@@ -8,7 +8,7 @@ internal class MySqlAdapter: ISqlAdapter {
 	/// <summary>
 	/// The SQL query used to fetch the identifier of the last inserted row.
 	/// </summary>
-	public string LastInsertIdQuery => "SELECT LAST_INSERT_ID() AS Id";
+	public string LastInsertIdQuery => $"SELECT LAST_INSERT_ID() AS {EscapeIdentifier("Id")}";
 
 	/// <summary>
 	/// Escapes the specified identifier.
