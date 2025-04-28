@@ -96,15 +96,6 @@ public static partial class SqlMapperExtensions {
 	}
 
 	/// <summary>
-	/// TODO
-	/// </summary>
-	/// <param name="property">The property.</param>
-	/// <returns>The resolved property name.</returns>
-	// internal static string GetPropertyName(string column, IEnumerable<PropertyInfo> mappedProperties) {
-	// 	property.GetCustomAttribute<ColumnAttribute>()?.Name ?? property.Name;
-	// }
-
-	/// <summary>
 	/// Resolves the property corresponding to the single key of the specified entity type.
 	/// </summary>
 	/// <typeparam name="T">The entity type.</typeparam>
@@ -127,7 +118,7 @@ public static partial class SqlMapperExtensions {
 	};
 
 	/// <summary>
-	/// Resolves the table name of the table corresponding the specified entity type.
+	/// Resolves the name of the table corresponding to the specified entity type.
 	/// </summary>
 	/// <typeparam name="T">The entity type.</typeparam>
 	/// <returns>The resolved table name.</returns>
