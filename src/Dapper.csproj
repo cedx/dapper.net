@@ -11,7 +11,7 @@
 		<Authors>CedX</Authors>
 		<IncludeSymbols>true</IncludeSymbols>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageReadmeFile>ReadMe.md</PackageReadmeFile>
 		<PackageTags>database;dapper;mapping;orm;sql</PackageTags>
 		<RepositoryUrl>https://github.com/cedx/dapper.net.git</RepositoryUrl>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
@@ -28,7 +28,7 @@
 
 	<ItemGroup>
 		<InternalsVisibleTo Include="Belin.Dapper.Tests" />
-		<None Include="../README.md" Pack="true" PackagePath="/" />
+		<None Include="../ReadMe.md" Pack="true" PackagePath="/" />
 	</ItemGroup>
 
 	<ItemGroup>
