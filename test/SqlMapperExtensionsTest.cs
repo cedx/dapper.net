@@ -51,7 +51,7 @@ public sealed class SqlMapperExtensionsTest {
 	[TestMethod]
 	public void GetInsertQuery() {
 		AreEqual("INSERT INTO Entities (Name) VALUES (@EntityName)", GetInsertQuery<AttributedEntity>());
-		AreEqual("INSERT INTO PlainEntity (Id, Name, IsMapped) VALUES (@Id, @Name, @IsMapped)", GetInsertQuery<PlainEntity>());
+		AreEqual("INSERT INTO PlainEntity (Name, IsMapped) VALUES (@Name, @IsMapped)", GetInsertQuery<PlainEntity>());
 	}
 
 	[TestMethod]
@@ -89,6 +89,6 @@ public sealed class SqlMapperExtensionsTest {
 	[TestMethod]
 	public void IsDatabaseGenerated() {
 		IsTrue(typeof(AttributedEntity).GetProperty("EntityId")!.IsDatabaseGenerated());
-		IsFalse(typeof(PlainEntity).GetProperty("Id")!.IsDatabaseGenerated());
+		IsTrue(typeof(PlainEntity).GetProperty("Id")!.IsDatabaseGenerated());
 	}
 }
