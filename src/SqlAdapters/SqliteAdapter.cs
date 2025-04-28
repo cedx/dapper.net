@@ -8,7 +8,7 @@ internal class SqliteAdapter: ISqlAdapter {
 	/// <summary>
 	/// The SQL query used to fetch the identifier of the last inserted row.
 	/// </summary>
-	public string LastInsertIdQuery => $"SELECT last_insert_rowid() AS {EscapeIdentifier("Id")}";
+	public string LastInsertIdQuery => "SELECT last_insert_rowid() AS Id";
 
 	/// <summary>
 	/// Escapes the specified identifier.
